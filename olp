@@ -1,1 +1,1 @@
-python olp.py $@
+python /usr/local/bin/olp.py $@

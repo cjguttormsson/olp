@@ -1,2 +1,5 @@
 chmod +x olp
-echo "Set your path to $PATH:$PWD and you're set!"
+cp olp /usr/local/bin
+cp olp.py /usr/local/bin
+olp "'Done! :D'"
+
