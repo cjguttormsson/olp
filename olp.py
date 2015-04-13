@@ -1,5 +1,8 @@
-import sys, os, itertools, re
+import sys, os, re
 from OLPExtensions import *
+from OLPExceptions import *
+
+extensions_location = "/usr/local/bin/OLPExtensions.py"
 
 def get_command():
     '''
@@ -17,12 +20,23 @@ def define(some_input, force = False):
     to True
     '''
 
-    definition_regex = re.compile('^((.)+=(.)+)+')
-    if re.match(definition_regex, some_input):
-        with open("/usr/local/bin/OLPExtensions.py", "wr") as definitions:
-            definitions.write(some_input + '\n')
+    definition_regex = re.compile('^((\w)+)( |=)*( |.)+')
+    match_groups = re.match(definition_regex, some_input)
+    if match_groups:
+        name = match_groups.group(2).strip()
+        with open(extensions_location, "a") as definitions:
+            if name in globals() and force == False:
+                print("OLP : Name " + name + " already in use. Use -df to ignore this warning")
+            else:
+                definitions.write(some_input + '\n')
     else:
         print("Not a valid definition")
+
+def edit():
+    '''
+    Opens vi to let you edit OLPs extensions
+    '''
+    os.system("/usr/bin/vi " + extensions_location)
 
 def run_command():   
     '''
@@ -40,19 +54,19 @@ def run_command():
         else:
             return "OLP : There was a syntax error in your command!"
 
-def run_command_from_pipe():
-    '''
-    Takes a set of values passed in from stdin, running the command on
-    each element, and yields the results
-    '''
-
-    stdin = sys.stdin
-    
-
 def main():
     command = get_command()
-    if command[0:2] == "-d":
-        define(command[3:])
+    command_params_regex = re.compile("^(-(df|d))+(.*)$")
+    match = re.match(command_params_regex, command)
+    if match:
+        param = match.group(1)
+        if param == '-df':
+                print("Forced define")
+                define(match.group(3).strip(), force = True)
+        elif param == "-d":
+                define(match.group(3).strip())
+        else:
+                print("OLP : Unrecognised parameter")
     else:
         result = run_command()
         if result:

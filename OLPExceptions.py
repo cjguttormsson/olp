@@ -1,0 +1,3 @@
+class OLPErrorTemplate(Exception):
+    pass
+
