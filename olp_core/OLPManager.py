@@ -128,9 +128,15 @@ def define(definition, force = False):
 def edit(editor):
     '''
     Opens a text editor to let you edit OLPs extensions
+    First tries to use specified editor, then value of $EDITOR
+    environment variable, then vi.
     '''
-    os.system((editor if editor else os.environ['EDITOR']) \
-              + " " +  extensions_location)
+    try:
+        os.system((editor if editor else os.environ['EDITOR']) \
+                  + " " +  extensions_location)
+    except KeyError:
+        print "No editor was specified. Attempting to open in vi..."
+        os.system("vi " + extensions_location)
 
 def clean(files_to_remove):
     '''
