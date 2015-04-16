@@ -129,7 +129,8 @@ def edit(editor):
     '''
     Opens a text editor to let you edit OLPs extensions
     '''
-    os.system(editor + " " +  extensions_location)
+    os.system((editor if editor else os.environ['EDITOR']) \
+              + " " +  extensions_location)
 
 def clean(files_to_remove):
     '''
