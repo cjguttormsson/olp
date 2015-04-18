@@ -1,8 +1,16 @@
-import sys, os, re
-from OLPExtensions import *
+try :
+    from OLPExtensions import *
+except SyntaxError:
+    print("OLP : There is a syntax error in the OLPExtensions. OLPExtensions will be ignored")
 from OLPExceptions import *
+from OLPModules import *
 
 extensions_location = "/usr/local/bin/OLPExtensions.py"
+modules_location = "/usr/local/bin/OLPModules.py"
+
+def stdin_reader():
+    for line in sys.stdin.read().split('\n'):
+        yield line
 
 def get_command():
     '''
@@ -10,6 +18,21 @@ def get_command():
     '''
 
     return " ".join([str(arg) for arg in sys.argv][1:]).strip()
+
+def add_module(module_name):
+    '''
+    Adds a module import to OLPModules
+    '''
+    module_regex = re.compile("(\w)+$")
+    if re.match(module_regex, module_name.strip()):
+        with open(modules_location, "a") as modules:
+            if module_name in globals():
+                print("OLP : Name " + module_name + " is already occupied in the global namespace")
+                print("OLP : Ignoring import attempt")
+            else:
+                modules.write("import " + module_name + '\n')
+    else:
+        print("OLP : Not a valid module name")
 
 def define(some_input, force = False):
     '''
@@ -21,7 +44,7 @@ def define(some_input, force = False):
     '''
 
     definition_regex = re.compile('^((\w)+)( |=)*( |.)+')
-    match_groups = re.match(definition_regex, some_input)
+    match_groups = re.match(definition_regex, some_input.strip())
     if match_groups:
         name = match_groups.group(2).strip()
         with open(extensions_location, "a") as definitions:
@@ -56,15 +79,17 @@ def run_command():
 
 def main():
     command = get_command()
-    command_params_regex = re.compile("^(-(df|d))+(.*)$")
+    command_params_regex = re.compile("^(-(df|d|i))+(.*)$")
     match = re.match(command_params_regex, command)
     if match:
         param = match.group(1)
         if param == '-df':
-                print("Forced define")
-                define(match.group(3).strip(), force = True)
+            print("Forced define")
+            define(match.group(3).strip(), force = True)
         elif param == "-d":
-                define(match.group(3).strip())
+            define(match.group(3).strip())
+        elif param == "-i":
+            add_module(match.group(3).strip())
         else:
                 print("OLP : Unrecognised parameter")
     else:
