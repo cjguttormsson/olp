@@ -7,7 +7,7 @@ try :
     from OLPExtensions import *
 except SyntaxError:
     print("OLP : There is a syntax error in the OLPExtensions. OLPExtensions \
-           will be ignored. Run olp -c to reset the file, or olp -e to edit it")
+           will be ignored. Run olp -e insert-text-editor to edit it")
 except ImportError:
     open('OLPExtensions.py', 'a').close()
 from OLPExceptions import *
@@ -20,10 +20,8 @@ def main():
     #DEFINTIONS
     #These have been moved in here to decrease clutter in the global namespace
 
-    extensions_location = OLPExtensions.__file__[0:len(OLPExtensions.__file__) - 1] 
-    print(extensions_location)
-    modules_location = OLPModules.__file__[0:len(OLPModules.__file__) - 1]
-    print(modules_location)
+    extensions_location = OLPExtensions.__file__[0:len(OLPExtensions.__file__) - 1]
+    modules_location = OLPModules.__file__[0:len(OLPExtensions.__file__) - 1]
 
     #IO
     def stdin_reader():
