@@ -5,6 +5,7 @@
 #and a second time so that we can do location lookup
 try :
     from OLPExtensions import *
+    import OLPExtensions
 except SyntaxError:
     print("OLP : There is a syntax error in the OLPExtensions. OLPExtensions \
            will be ignored. Run olp -e insert-text-editor to edit it")
@@ -13,8 +14,6 @@ except ImportError:
 from OLPExceptions import *
 from OLPModules import *
 import OLPModules
-import OLPExceptions
-import OLPExtensions
 
 def main():
     #DEFINTIONS
