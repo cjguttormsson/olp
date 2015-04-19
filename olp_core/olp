@@ -103,7 +103,7 @@ def main():
 
     #CONTROL FLOW
     command = get_command()
-    command_params_regex = re.compile("^(-(df|d|i|e|h))+(.*)$")
+    command_params_regex = re.compile("^(-(df|d|i|e|h|c))+(.*)$")
     match = re.match(command_params_regex, command)
     if match:
         param = match.group(1).lower()

@@ -4,3 +4,4 @@ from OLPModules import *
 #sure the entire OLP system has access to the same modules.
 #Below here you may have your fun :)
 
+fib = lambda n: n if n < 2 else fib(n - 1) + fib(n - 2)
