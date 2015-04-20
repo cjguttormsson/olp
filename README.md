@@ -49,4 +49,4 @@ To expose another module, run ```olp -i "module-name"``` and you're set!
 - -e "text-editor" : Manually edit the custom defintions set with -d/-df, with your favourite text-editor!
 - -h : print the help message.
 
-#### Follow me on twitter, @_audun_
+#### Follow me on twitter, "@_audun_"
