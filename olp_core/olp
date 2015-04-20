@@ -49,7 +49,7 @@ def OLPMain():
         This function does not write to stdout.
         '''
         if command.strip() == "":
-            print_help_msg()
+            raise OLPNoCommand()
         else:
             return str(eval(command))
 
@@ -88,15 +88,15 @@ def OLPMain():
             with open(modules_location, "a") as modules:
                 if module_is_available(module_name):
                     if module_name in globals():
-                        print("OLP: Name " + module_name + " is already occupied in the global namespace")
+                        raise OLPNameTaken(module_name)
                     else:
                         modules.write("import " + module_name + '\n')
                 else:
-                    print("OLP: Module " + module_name + " is not available to import")
+                    raise OLPInaccessibleModule(module_name)
         else:
-            print("OLP : Not a valid module name")
+            raise OLPInvalidModuleName(module_name.strip())
 
-    def define(some_input, force = False):
+    def define(definition, force = False):
         '''
         Defines some variable or function for later use in OLP.
         This is made availabe through the import of OLPExtensions
@@ -106,16 +106,16 @@ def OLPMain():
         '''
 
         definition_regex = re.compile('^((\w)+)( |=)*( |.)+')
-        match_groups = re.match(definition_regex, some_input.strip())
+        match_groups = re.match(definition_regex, definition.strip())
         if match_groups:
             name = match_groups.group(2).strip()
             with open(extensions_location, "a") as definitions:
                 if name in globals() and force == False:
-                    print("OLP : Name " + name + " already in use. Use -df to ignore this warning")
+                    raise OLPNeedOverrideToDefine(name)
                 else:
-                    definitions.write(some_input + '\n')
+                    definitions.write(definition + '\n')
         else:
-            print("Not a valid definition")
+            raise OLPInvalidDefinition(definition)
 
     def edit(editor):
         '''
@@ -128,37 +128,52 @@ def OLPMain():
 
 
     #CONTROL FLOW
-    command = get_command()
-    command_params_regex = re.compile("^(-(\w+))+(.*)$")
-    match = re.match(command_params_regex, command)
-    if match:
-        param = match.group(1).lower()
-        if param == '-df':
-            #Forced define
-            define(match.group(3).strip(), force = True)
-        elif param == "-d":
-            #Define
-            define(match.group(3).strip())
-        elif param == "-i":
-            #Import module
-            add_module(match.group(3).strip())
-        elif param == "-e":
-            #Manually edit definitions
-            edit(match.group(3).strip())
-        elif param == "-h":
-            #Print help msg
-            print_help_msg()
-        elif param == "-modules":
-            print_modules()
-        elif param == "-p":
-            run_command_on_stdin(match.group(3).strip())
+    try :
+        command = get_command()
+        command_params_regex = re.compile("^(-(\w+))+(.*)$")
+        match = re.match(command_params_regex, command)
+        if match:
+            param = match.group(1).lower()
+            if param == '-df':
+                #Forced define
+                define(match.group(3).strip(), force = True)
+            elif param == "-d":
+                #Define
+                define(match.group(3).strip())
+            elif param == "-i":
+                #Import module
+                add_module(match.group(3).strip())
+            elif param == "-e":
+                #Manually edit definitions
+                edit(match.group(3).strip())
+            elif param == "-h":
+                #Print help msg
+                print_help_msg()
+            elif param == "-modules":
+                print_modules()
+            elif param == "-p":
+                run_command_on_stdin(match.group(3).strip())
+            else:
+                raise OLPUnrecognisedParameter
         else:
-            print("OLP : Unrecognised parameter")
-    else:
-        # OLP was passed no new definition or import, so we assume it's a regular command.
-        result = run_command(get_command())
-        if result:
-            print(result)
+            # OLP was passed no new definition or import, so we assume it's a regular command.
+            result = run_command(get_command())
+            if result:
+                print(result)
+    except OLPNameTaken as e:
+        print(e.__str__())
+    except OLPNeedOverrideToDefine as e:
+        print(e.__str__())
+    except OLPNoCommand as e:
+        print(e.__str__())
+    except OLPInaccessibleModule as e:
+        print(e.__str__())
+    except OLPUnrecognisedParameter as e:
+        print(e.__str__())
+    except OLPInvalidDefintion as e:
+        print(e.__str__())
+    except OLPInvalidModuleName as e:
+        print(e.__str__())
 
 if __name__ == "__main__":
     OLPMain()
