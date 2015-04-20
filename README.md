@@ -43,12 +43,10 @@ OLP is configured to provide access to ```os```, ```sys```, ```re```, ```pkgutil
 To expose another module, run ```olp -i "module-name"``` and you're set!
 
 #API
--i "module-name" : Exposes a module for use in one-liners
+- -i "module-name" : Exposes a module for use in one-liners
+- -d | -df "defintion" : Defines a variable or lambda, and exposes it to OLP, with an optional force paramater which will override existing uses of that name.
+- -modules : Lists the modules exposed to OLP
+- -e "text-editor" : Manually edit the custom defintions set with -d/-df, with your favourite text-editor!
+- -h : print the help message.
 
--d | -df "defintion" : Defines a variable or lambda, and exposes it to OLP, with an optional force paramater which will override existing uses of that name.
-
--modules : Lists the modules exposed to OLP
-
--e "text-editor" : Manually edit the custom defintions set with -d/-df, with your favourite text-editor!
-
--h : print the help message.
+#### Follow me on twitter, @_audun_
