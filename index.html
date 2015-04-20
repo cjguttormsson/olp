@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>Olp by audun-</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Olp</h1>
+        <h2>Execute arbitary python one-liners in the terminal</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/audun-/olp/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/audun-/olp/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/audun-/olp" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a id="olp" class="anchor" href="#olp" aria-hidden="true"><span class="octicon octicon-link"></span></a>OLP</h1>
+
+<p>One-liner Python</p>
+
+<p>Execute arbitary python one-liners in the terminal</p>
+
+<h1>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h1>
+
+<p>OLP is installed through python distutils, like so:</p>
+
+<pre><code>git clone https://github.com/audun-/olp
+cd olp/olp_core
+python setup.py sdist
+python setup.py install
+</code></pre>
+
+<h1>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h1>
+
+<p>Execute arbitrary functions in the CLI</p>
+
+<pre><code>olp "sum(range(10))"
+&gt;&gt;&gt; 45
+</code></pre>
+
+<p>However, that's been done a million times before, so here's some more neat things OLP can do! </p>
+
+<h3>
+<a id="extensibility" class="anchor" href="#extensibility" aria-hidden="true"><span class="octicon octicon-link"></span></a>Extensibility</h3>
+
+<p>OLP lets you define functions and values that can be stored for use later.
+Let's make it get binary values of characters!</p>
+
+<pre><code>olp -d "get_bin = lambda s: str(bin(ord(s)))[2:]"
+olp "get_bin('a')"
+&gt;&gt;&gt; 1100001
+</code></pre>
+
+<h3>
+<a id="exposed-modules" class="anchor" href="#exposed-modules" aria-hidden="true"><span class="octicon octicon-link"></span></a>Exposed modules</h3>
+
+<p>OLP lets you reference any module of your choosing in your one-liners.
+This means you can do stuff like count the amount of recurrences of a file-extension in a file-tree fromt where you called OLP:</p>
+
+<pre><code>olp -d "amount_of_files = lambda ext: sum([1 for file in os.walk('.') if re.match('(.)+' + ext + '$', file)])
+olp "amount_of_files('.pdf')"
+&gt;&gt;&gt; 23
+</code></pre>
+
+<p>OLP is configured to provide access to <code>os</code>, <code>sys</code>, <code>re</code>, <code>pkgutil</code>, and <code>subprocess</code> by default, but you can add any module you want!
+To expose another module, run <code>olp -i "module-name"</code> and you're set!</p>
+
+<h1>
+<a id="api" class="anchor" href="#api" aria-hidden="true"><span class="octicon octicon-link"></span></a>API</h1>
+
+<p>-i "module-name" : Exposes a module for use in one-liners</p>
+
+<p>-d | -df "defintion" : Defines a variable or lambda, and exposes it to OLP, with an optional force paramater which will override existing uses of that name.</p>
+
+<p>-modules : Lists the modules exposed to OLP</p>
+
+<p>-e "text-editor" : Manually edit the custom defintions set with -d/-df, with your favourite text-editor!</p>
+
+<p>-h : print the help message.</p>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
