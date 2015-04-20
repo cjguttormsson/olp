@@ -15,26 +15,26 @@ from OLPExceptions import *
 from OLPModules import *
 import OLPModules
 
-def main():
+def OLPMain():
     #DEFINTIONS
     #These have been moved in here to decrease clutter in the global namespace
 
     extensions_location = OLPExtensions.__file__[0:len(OLPExtensions.__file__) - 1]
-    modules_location = OLPModules.__file__[0:len(OLPExtensions.__file__) - 1]
+    modules_location = OLPModules.__file__[0:len(OLPModules.__file__) - 1]
 
     #IO
-    def stdin_reader():
-        '''
-        Reads from stdin and yields every line as a string
-        '''
-        for line in sys.stdin.read().split('\n'):
-            yield line
-
     def print_help_msg():
         print("Welcome to OLP! To use it, run olp \"your-python-command\" \n" + \
         "To define a new variable or lambda for permanent storage, use -d or -df. \n" + \
         "To import and expose a new module, use -i. \n" + \
         "If you want to manually edit these, run olp -e \"your-favourite-text-editor\"")
+
+    def print_modules():
+        with open(modules_location) as modules:
+            for line in modules:
+                module_name_regex = re.compile('^import (\w+)')
+                module_name = re.match(module_name_regex, line.strip('\n')).group(1)
+                print(module_name)
 
     def get_command():
         '''
@@ -43,17 +43,40 @@ def main():
 
         return " ".join([str(arg) for arg in sys.argv][1:]).strip()
     
-    def run_command():
+    def run_command(command):
         '''
         Eval and stringify the command, then return the result.
         This function does not write to stdout.
         '''
-
-        command = get_command()
         if command.strip() == "":
             print_help_msg()
         else:
             return str(eval(command))
+
+
+    def stdin_reader():
+        '''
+        Reads from stdin and yields every line as a string
+        '''
+        for line in sys.stdin.read().split('\n'):
+            yield line.strip()
+
+    def stdin_variable_replacer(function_string, value):
+        '''
+        Finds and replaces every instance of '_' in the function string.
+        Removes that variable from the function parameters to avoid name-errors on eval.
+        '''
+        underscore_regex = re.compile('(\s|\(\|\[)_(\s|\/|\])')
+        return re.sub(underscore_regex, value, function_string)
+
+    def run_command_on_stdin(command):
+        results = []
+    
+    def build_module_name_list():
+        return [module[1] for module in pkgutil.iter_modules()]
+
+    def module_is_available(module_name):
+        return module_name in build_module_name_list()
 
     #EXTENSIONS
     def add_module(module_name):
@@ -63,12 +86,13 @@ def main():
         module_regex = re.compile("(\w)+$")
         if re.match(module_regex, module_name.strip()):
             with open(modules_location, "a") as modules:
-                if module_name in globals():
-                    print("OLP : Name " + module_name + " is already occupied in \
-                    the global namespace")
-                    print("OLP : Ignoring import attempt")
+                if module_is_available(module_name):
+                    if module_name in globals():
+                        print("OLP: Name " + module_name + " is already occupied in the global namespace")
+                    else:
+                        modules.write("import " + module_name + '\n')
                 else:
-                    modules.write("import " + module_name + '\n')
+                    print("OLP: Module " + module_name + " is not available to import")
         else:
             print("OLP : Not a valid module name")
 
@@ -97,8 +121,7 @@ def main():
         '''
         Opens a text editor to let you edit OLPs extensions
         '''
-        os.system("/usr/bin/" + editor + " " +  extensions_location)
-
+        os.system(editor + " " +  extensions_location)
 
 
     #END DEFINITIONS
@@ -106,7 +129,7 @@ def main():
 
     #CONTROL FLOW
     command = get_command()
-    command_params_regex = re.compile("^(-(df|d|i|e|h|c))+(.*)$")
+    command_params_regex = re.compile("^(-(\w+))+(.*)$")
     match = re.match(command_params_regex, command)
     if match:
         param = match.group(1).lower()
@@ -125,13 +148,17 @@ def main():
         elif param == "-h":
             #Print help msg
             print_help_msg()
+        elif param == "-modules":
+            print_modules()
+        elif param == "-p":
+            run_command_on_stdin(match.group(3).strip())
         else:
             print("OLP : Unrecognised parameter")
     else:
         # OLP was passed no new definition or import, so we assume it's a regular command.
-        result = run_command()
+        result = run_command(get_command())
         if result:
             print(result)
 
 if __name__ == "__main__":
-    main()
+    OLPMain()
