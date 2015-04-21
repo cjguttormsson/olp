@@ -135,3 +135,27 @@ def edit(editor):
     Opens a text editor to let you edit OLPs extensions
     '''
     os.system(editor + " " +  extensions_location)
+
+def clean(files_to_remove):
+    '''
+    Removes everything that has been added to OLPExtensions or OLPModules
+    '''
+    are_they_sure = raw_input("This action is irreversible. Are you sure? Y/N \n")
+    default_extensions = "from OLPModules import * \n #That top line necessary, so please don't touch it!"
+    default_modules = "import re \n import sys \n import os \n import pkgutil \n import string \n import subprocess"
+    if are_they_sure:
+        if files_to_remove.lower() == "extensions":
+            os.remove(extensions_location)
+            with open(extensions_location) as extensions:
+                extensions.write(default_extensions)
+        elif files_to_remove.lower() == "modules":
+            os.remove(modules_location)
+            with open(modules_location) as modules:
+                modules.write(default_modules)
+        elif files_to_remove.lower() == "both":
+            os.remove(modules_location)
+            os.remove(extensions_location)
+            with open(extensions_location) as extensions:
+                extensions.write(default_extensions)
+            with open(modules_location) as modules:
+                modules.write(default_modules)
