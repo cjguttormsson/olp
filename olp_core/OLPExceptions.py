@@ -10,7 +10,7 @@ class OLPNameTaken(OLPErrorTemplate):
 
 class OLPNeedOverrideToDefine(OLPErrorTemplate):
     def __init__(self, definition_name):
-        self.msg = "Name " + defintion_name + " is occupied in the global namespace, but you can override its definition by using the -df paramter"
+        self.msg = "Name " + definition_name + " is occupied in the global namespace, but you can override its definition by using the -df paramter"
 
 class OLPNoCommand(OLPErrorTemplate):
     def __init__(self):
@@ -22,9 +22,9 @@ class OLPInaccessibleModule(OLPErrorTemplate):
 
 class OLPUnrecognisedParameter(OLPErrorTemplate):
     def __init__(self, parameter):
-        self.msg = "Unrecognised paramter " + paramter
+        self.msg = "Unrecognised paramter " + parameter
 
-class OLPInvalidDefintion(OLPErrorTemplate):
+class OLPInvalidDefinition(OLPErrorTemplate):
     def __init__(self, definition):
         self.msg = "Invalid definition: " + definition
 

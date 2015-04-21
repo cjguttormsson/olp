@@ -1,163 +1,38 @@
 #!/usr/bin/python
-
-#IMPORTS
-#These modules are imported twice. Once to expose all their definitons to the eval
-#and a second time so that we can do location lookup
-try :
-    from OLPExtensions import *
-    import OLPExtensions
-except SyntaxError:
-    print("OLP : There is a syntax error in the OLPExtensions. OLPExtensions \
-           will be ignored. Run olp -e insert-text-editor to edit it")
-except ImportError:
-    open('OLPExtensions.py', 'a').close()
-from OLPExceptions import *
+import OLPManager
 from OLPModules import *
-import OLPModules
-
+from OLPExceptions import *
 def OLPMain():
-    #DEFINTIONS
-    #These have been moved in here to decrease clutter in the global namespace
-
-    extensions_location = OLPExtensions.__file__[0:len(OLPExtensions.__file__) - 1]
-    modules_location = OLPModules.__file__[0:len(OLPModules.__file__) - 1]
-
-    #IO
-    def print_help_msg():
-        print("Welcome to OLP! To use it, run olp \"your-python-command\" \n" + \
-        "To define a new variable or lambda for permanent storage, use -d or -df. \n" + \
-        "To import and expose a new module, use -i. \n" + \
-        "If you want to manually edit these, run olp -e \"your-favourite-text-editor\"")
-
-    def print_modules():
-        with open(modules_location) as modules:
-            for line in modules:
-                module_name_regex = re.compile('^import (\w+)')
-                module_name = re.match(module_name_regex, line.strip('\n')).group(1)
-                print(module_name)
-
-    def get_command():
-        '''
-        Stringify and return the command or definition given to OLP
-        '''
-
-        return " ".join([str(arg) for arg in sys.argv][1:]).strip()
-    
-    def run_command(command):
-        '''
-        Eval and stringify the command, then return the result.
-        This function does not write to stdout.
-        '''
-        if command.strip() == "":
-            raise OLPNoCommand()
-        else:
-            return str(eval(command))
-
-
-    def stdin_reader():
-        '''
-        Reads from stdin and yields every line as a string
-        '''
-        for line in sys.stdin.read().split('\n'):
-            yield line.strip()
-
-    def stdin_variable_replacer(function_string, value):
-        '''
-        Finds and replaces every instance of '_' in the function string.
-        Removes that variable from the function parameters to avoid name-errors on eval.
-        '''
-        underscore_regex = re.compile('(\s|\(\|\[)_(\s|\/|\])')
-        return re.sub(underscore_regex, value, function_string)
-
-    def run_command_on_stdin(command):
-        results = []
-    
-    def build_module_name_list():
-        return [module[1] for module in pkgutil.iter_modules()]
-
-    def module_is_available(module_name):
-        return module_name in build_module_name_list()
-
-    #EXTENSIONS
-    def add_module(module_name):
-        '''
-        Adds a module import to OLPModules
-        '''
-        module_regex = re.compile("(\w)+$")
-        if re.match(module_regex, module_name.strip()):
-            with open(modules_location, "a") as modules:
-                if module_is_available(module_name):
-                    if module_name in globals():
-                        raise OLPNameTaken(module_name)
-                    else:
-                        modules.write("import " + module_name + '\n')
-                else:
-                    raise OLPInaccessibleModule(module_name)
-        else:
-            raise OLPInvalidModuleName(module_name.strip())
-
-    def define(definition, force = False):
-        '''
-        Defines some variable or function for later use in OLP.
-        This is made availabe through the import of OLPExtensions
-        the next time the script is called.
-        Will not overwrite existing definitions unless force is set
-        to True
-        '''
-
-        definition_regex = re.compile('^((\w)+)( |=)*( |.)+')
-        match_groups = re.match(definition_regex, definition.strip())
-        if match_groups:
-            name = match_groups.group(2).strip()
-            with open(extensions_location, "a") as definitions:
-                if name in globals() and force == False:
-                    raise OLPNeedOverrideToDefine(name)
-                else:
-                    definitions.write(definition + '\n')
-        else:
-            raise OLPInvalidDefinition(definition)
-
-    def edit(editor):
-        '''
-        Opens a text editor to let you edit OLPs extensions
-        '''
-        os.system(editor + " " +  extensions_location)
-
-
-    #END DEFINITIONS
-
-
-    #CONTROL FLOW
     try :
-        command = get_command()
+        command = OLPManager.get_command()
         command_params_regex = re.compile("^(-(\w+))+(.*)$")
         match = re.match(command_params_regex, command)
         if match:
             param = match.group(1).lower()
             if param == '-df':
                 #Forced define
-                define(match.group(3).strip(), force = True)
+                OLPManager.define(match.group(3).strip(), force = True)
             elif param == "-d":
                 #Define
-                define(match.group(3).strip())
+                OLPManager.define(match.group(3).strip())
             elif param == "-i":
                 #Import module
-                add_module(match.group(3).strip())
+                OLPManager.add_module(match.group(3).strip())
             elif param == "-e":
                 #Manually edit definitions
-                edit(match.group(3).strip())
+                OLPManager.edit(match.group(3).strip())
             elif param == "-h":
                 #Print help msg
-                print_help_msg()
+                OLPManager.print_help_msg()
             elif param == "-modules":
-                print_modules()
+                OLPManager.print_modules()
             elif param == "-p":
-                run_command_on_stdin(match.group(3).strip())
+                OLPManager.run_command_on_stdin(match.group(3).strip())
             else:
                 raise OLPUnrecognisedParameter
         else:
             # OLP was passed no new definition or import, so we assume it's a regular command.
-            result = run_command(get_command())
+            result = OLPManager.run_command(OLPManager.get_command())
             if result:
                 print(result)
     except OLPNameTaken as e:
