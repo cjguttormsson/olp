@@ -5,29 +5,30 @@ from OLPExceptions import *
 def OLPMain():
     try :
         command = OLPManager.get_command()
-        command_params_regex = re.compile("^(-(\w+))+(.*)$")
+        command_params_regex = re.compile("^(-\w+)+(.*)$")
         match = re.match(command_params_regex, command)
         if match:
             param = match.group(1).lower()
+            cli_string = match.group(2).strip() 
             if param == '-df':
                 #Forced define
-                OLPManager.define(match.group(3).strip(), force = True)
+                OLPManager.define(cli_string, force = True)
             elif param == "-d":
                 #Define
-                OLPManager.define(match.group(3).strip())
+                OLPManager.define(cli_string)
             elif param == "-i":
                 #Import module
-                OLPManager.add_module(match.group(3).strip())
+                OLPManager.add_module(cli_string)
             elif param == "-e":
-                #Manually edit definitions
-                OLPManager.edit(match.group(3).strip())
+                #Manually edit definitions with text editor
+                OLPManager.edit(cli_string)
             elif param == "-h":
                 #Print help msg
                 OLPManager.print_help_msg()
             elif param == "-modules":
                 OLPManager.print_modules()
             elif param == "-p":
-                OLPManager.run_command_on_stdin(match.group(3).strip())
+                OLPManager.run_command_on_stdin(cli_string)
             else:
                 raise OLPUnrecognisedParameter
         else:
@@ -45,7 +46,7 @@ def OLPMain():
         print(e.__str__())
     except OLPUnrecognisedParameter as e:
         print(e.__str__())
-    except OLPInvalidDefintion as e:
+    except OLPInvalidDefinition as e:
         print(e.__str__())
     except OLPInvalidModuleName as e:
         print(e.__str__())

@@ -118,7 +118,7 @@ def define(definition, force = False):
     to True
     '''
 
-    definition_regex = re.compile('^(([a-zA-Z])+)( |=)*( |.)+')
+    definition_regex = re.compile('^(([a-zA-Z_])+)( |=)*( |.)+')
     match_groups = re.match(definition_regex, definition.strip())
     if match_groups:
         name = match_groups.group(1).strip()
