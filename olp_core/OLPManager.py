@@ -55,7 +55,7 @@ def get_command():
 
     return " ".join([str(arg) for arg in sys.argv][1:]).strip()
 
-def run_command(command):
+def run_command(command, _ = None):
     '''
     Eval and stringify the command, then return the result.
     This function does not write to stdout.
@@ -74,16 +74,11 @@ def stdin_reader():
         if line.strip() != '':
             yield line.strip()
 
-def stdin_variable_replacer(function_string, value):
-    '''
-    Finds and replaces every instance of '_' in the function string.
-    Removes that variable from the function parameters to avoid name-errors on eval.
-    '''
-    underscore_regex = re.compile('(\s|\(\|\[)_(\s|\/|\])')
-    return re.sub(underscore_regex, value, function_string)
-
 def run_command_on_stdin(command):
     results = []
+    for line in stdin_reader():
+        _ = line
+        print(run_command(command, _))
 
 def build_module_name_list():
     return [module[1] for module in pkgutil.iter_modules()]
@@ -139,6 +134,10 @@ def edit(editor):
 def clean(files_to_remove):
     '''
     Removes everything that has been added to OLPExtensions or OLPModules
+    NOTE: This feature is not fully implemented yet! The little stub here 
+    is basically just a note to myself showing kind of how it will work. 
+    As you might see, it needs a redesign, all those 'with open' statements
+    are kind of nasty.
     '''
     are_they_sure = raw_input("This action is irreversible. Are you sure? Y/N \n")
     default_extensions = "from OLPModules import * \n #That top line necessary, so please don't touch it!"
