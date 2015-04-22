@@ -27,7 +27,7 @@ However, that's been done a million times before, so here's some more neat thing
 OLP lets you define functions and values that can be stored for use later.
 Let's make it get binary values of characters!
 ```
-olp -d "get_bin = lambda c: str(bin(ord(s)))[2:]"
+olp -d "get_bin = lambda c: str(bin(ord(c)))[2:]"
 olp "get_bin('a')"
 >>> 1100001
 ```
